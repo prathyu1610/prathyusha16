@@ -1,0 +1,92 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"log"
+	"net/http"
+	"net/url"
+
+	"io/ioutil"
+)
+
+type Get struct {
+	Coord      Coord     `json :"coord"`
+	Weather    []Weather `json:"weather"`
+	Base       string    `json :"base"`
+	Main       Main      `json :"main"`
+	Visibility int64     `json :"visisbility"`
+	Wind       Wind      `json:"wind"`
+	Clouds     Clouds    `json ;"clouds"`
+	Dt         int64     `json :'dt"`
+	Sys        Sys       `json:"sys"`
+	Timezone   int64     `json :"timezone"`
+	Id         int64     `json:"id"`
+	Name       string    `json:"name"`
+	Cod        int64     `json :"cod"`
+}
+type Sys struct {
+	Type    int32  `json :"type"`
+	Id      int64  `json:"id"`
+	Country string `json:"country"`
+	Sunrise int64  `json:"sunrise"`
+	Sunset  int64  `json:"sunset"`
+}
+type Coord struct {
+	Lon int64 `json:"lon"`
+	Lat int64 `json:"lat"`
+}
+type Weather struct {
+	Id          int64  `json:"id"`
+	Main        string `json :"main"`
+	Description string `json:"description"`
+	Icon        string `json:"icon"`
+}
+type Main struct {
+	Temp      float64 `json :"temp"`
+	Feelslike float64 `json:"fellslsike"`
+	Tempmin   float64 `json:"tempmin"`
+	Temp_max  float64 `json :"temop_max"`
+	Pressure  int64   `json:"pressure"`
+	Humidity  int64   `json:"humidity"`
+}
+type Wind struct {
+	Speed float64 `json:"speed"`
+	Deg   int64   `json :"deg"`
+}
+type Clouds struct {
+	All int64 `json:"all"`
+}
+
+func main() {
+	var d *Get
+	Client := http.Client{}
+	req, err := http.NewRequest("Get", "https://rapidapi.com/community/api/open-weather-map/", nil)
+
+	req.Header.Add("X-RapidAPI-Host", "community-open-weather-map.p.rapidapi.com")
+	req.Header.Add("X-RapidAPI-Key", "2b81cd346dmshd66a7cd6fee6dfdp10d237jsn9dfe2814eaa0")
+	q := url.Values{}
+
+	q.Add("q", "mumbai, india")
+	q.Add("lat", "19.0728")
+	q.Add("lon", "72.8826")
+	q.Add("lang", "english-en")
+
+	req.URL.RawQuery = q.Encode()
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	resp, err := Client.Do(req)
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Println(err)
+	}
+	err = json.Unmarshal(body, &d)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(d)
+}
